@@ -8,6 +8,11 @@ const fetchFarms = async () => {
     await page.goto(yieldYakStableFarmsUrl);
 
     const farms = await page.evaluate(() => {
+        const formatTVL = (value) => {
+            return value
+                .replaceAll('TVL', '')
+                .replaceAll(' ', '');
+        } 
         const formatAPY = (value) => {
             return value
                 .replaceAll('APY', '')
@@ -20,12 +25,13 @@ const fetchFarms = async () => {
         return farmElements
         .map((farmElement) => {
             return {
-                name: farmElement.getElementsByClassName('title is-2')[0].textContent,
-                tvl: farmElement.getElementsByClassName('box is-dark')[0].textContent,
-                farmAPY: farmElement.getElementsByClassName('box is-dark')[1].textContent
+                provider: farmElement.getElementsByClassName('subtitle is-4')[0].textContent,
+                coin: farmElement.getElementsByClassName('title is-2')[0].textContent,
+                tvl: formatTVL(farmElement.getElementsByClassName('box is-dark')[0].textContent),
+                farmAPY: formatAPY(farmElement.getElementsByClassName('box is-dark')[1].textContent)
             }
         })
-        .filter(farm => stableCoinSymbols.includes(farm.name));
+        .filter(farm => stableCoinSymbols.includes(farm.coin));
     });
 
     console.log(farms);
@@ -33,4 +39,4 @@ const fetchFarms = async () => {
     await browser.close();
 }
 
-fetchFarms();
+await fetchFarms();
