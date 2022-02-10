@@ -1,9 +1,13 @@
 import axios from 'axios';
 
-const fetchBalanceForToken = async (tokenContract) => {
-    const tokenBalanceFetchUrl = `https://api.snowtrace.io/api?module=account&action=tokenbalance&contractaddress=0x8c571111fc30f921774f3caa3e1a20e464173c9d&address=${tokenContract}&tag=latest&apikey=x`;
-    const tokenRequest = await axios.get(tokenBalanceFetchUrl);
-    console.log(tokenRequest);
+const fetchInvestedFarm = async (farmContractAddresses) => {
+    const walletTokenBalanceFetchUrl = `https://api.covalenthq.com/v1/43114/address/address/balances_v2/?key=P`;
+    const walletTokenBalanceData = await axios.get(walletTokenBalanceFetchUrl);
+    return walletTokenBalanceData.data.data.items
+    .filter(tokenItem => {
+        return farmContractAddresses.includes(tokenItem.contract_address.toLowerCase()) && tokenItem.balance > 0;
+    })
+    [0].contract_address;
 }
 
-export default fetchBalanceForToken;
+export default fetchInvestedFarm;
