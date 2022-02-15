@@ -1,4 +1,6 @@
 import puppeteer from 'puppeteer';
+import { logger } from '../util/logger.js';
+
 const yieldYakStableFarmsUrl = 'https://yieldyak.com/farms?farmType=stable';
 
 const fetchFarms = async () => {
@@ -38,6 +40,7 @@ const fetchFarms = async () => {
         .sort((a, b) => new Number(b.farmAPY) - new Number(a.farmAPY));
     });
     await browser.close();
+    logger.info('Retrieved farms: %o', farms);
     return farms;
 }
 

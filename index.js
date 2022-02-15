@@ -1,21 +1,18 @@
-import fetchFarms from './service/farmService.js'
-import fetchInvestedFarm from './service/tokenBalanceRetrieval.js'
+import 'dotenv/config'
+import fetchFarms from './service/farmRetrievalService.js';
+import fetchInvestedFarm from './service/tokenBalanceRetrieval.js';
+import findBestFarm from './service/farmComparisonService.js'
+import sendFarmNotification from './service/discordNotifierService.js';
+import {logger} from './util/logger.js';
 
 const farmData = await fetchFarms();
 const farmContractAddresses = farmData.map(farm => farm.contractAddress.toLowerCase());
 const investedFarmContract = await fetchInvestedFarm(farmContractAddresses);
 const investedFarm = farmData.filter(farm => farm.contractAddress.toLowerCase() === investedFarmContract)[0];
-const findBetterFarm = (investedFarm, farmData) => {
-    let bestFarm = {};
-    const investedFarmAPY = investedFarm.farmAPY;
-    if(farmData[0].farmAPY > investedFarmAPY) {
-        bestFarm = farmData[0];
-    } else if (farmData[1].farmAPY > investedFarmAPY) {
-        bestFarm = farmData[1];
-    } else if (farmData[2].farmAPY > investedFarmAPY) {
-        bestFarm = farmData[2];
-    } 
-    return {investedFarm, bestFarm};
-}
+const bestFarm = findBestFarm(investedFarm, farmData);
+const isInvestedFarmBestOption = bestFarm.contractAddress.toLowerCase() === investedFarm.contractAddress.toLowerCase();
 
-console.log(findBetterFarm(investedFarm, farmData));
+if(!isInvestedFarmBestOption) {
+    logger.info('Better farm found, sending notification...');
+    await sendFarmNotification(investedFarm, bestFarm);
+}

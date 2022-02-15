@@ -1,13 +1,18 @@
 import axios from 'axios';
+import { logger } from '../util/logger.js';
+
+const walletAddress = process.env.WALLET_ADDRESS;
+const covalentApiKey = process.env.COVALENT_API_KEY;
 
 const fetchInvestedFarm = async (farmContractAddresses) => {
-    const walletTokenBalanceFetchUrl = `https://api.covalenthq.com/v1/43114/address/address/balances_v2/?key=P`;
+    const walletTokenBalanceFetchUrl = `https://api.covalenthq.com/v1/43114/address/${walletAddress}/balances_v2/?key=${covalentApiKey}`;
     const walletTokenBalanceData = await axios.get(walletTokenBalanceFetchUrl);
-    return walletTokenBalanceData.data.data.items
+    const investedFarmAddress = walletTokenBalanceData.data.data.items
     .filter(tokenItem => {
         return farmContractAddresses.includes(tokenItem.contract_address.toLowerCase()) && tokenItem.balance > 0;
-    })
-    [0].contract_address;
+    })[0].contract_address;
+    logger.info('Fetched invested farm %o', investedFarmAddress);
+    return investedFarmAddress;
 }
 
 export default fetchInvestedFarm;
