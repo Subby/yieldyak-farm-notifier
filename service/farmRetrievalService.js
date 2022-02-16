@@ -4,7 +4,7 @@ import { logger } from '../util/logger.js';
 const yieldYakStableFarmsUrl = 'https://yieldyak.com/farms?farmType=stable';
 
 const fetchFarms = async () => {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({args:['--no-sandbox']});
     const page = await browser.newPage();
     await page.goto(yieldYakStableFarmsUrl);
     await page.waitForTimeout(3000);
