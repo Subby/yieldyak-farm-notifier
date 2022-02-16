@@ -33,11 +33,16 @@ const sendFarmNotification = async (investedFarm, bestFarm) => {
         )
         .setTimestamp();
 
-    logger.info('Sending farm notification embed');
-    const channelCache = await client.channels.cache;
-    await channelCache.get(discordBotChannelId).send({ embeds: [farmEmbed] });
-    logger.info('Discord bot logging out...');
-    client.destroy();
+    try {
+        logger.info('Sending farm notification embed');
+        const channel = await client.channels.cache.get(discordBotChannelId);
+        await channel.send({ embeds: [farmEmbed] });
+    } catch (exception) {
+        log.error('Error sending notification: %o', exception);
+    } finally {
+        logger.info('Discord bot logging out...');
+        client.destroy();
+    }
 }
 
 export default sendFarmNotification;

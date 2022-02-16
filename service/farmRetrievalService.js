@@ -7,7 +7,7 @@ const fetchFarms = async () => {
     const browser = await puppeteer.launch({args:['--no-sandbox']});
     const page = await browser.newPage();
     await page.goto(yieldYakStableFarmsUrl);
-    await page.waitForTimeout(3000);
+    await page.waitForSelector('.card');
 
     const farms = await page.evaluate(() => {
         const formatTVL = (value) => {
@@ -25,7 +25,6 @@ const fetchFarms = async () => {
         }        
         const stableCoinSymbols = ['USDC.e', 'USDT.e', 'DAI.e', 'MIM'];
         const farmElements = [...document.getElementsByClassName('card')];
-        console.log(farmElements.length);
         return farmElements
         .map((farmElement) => {
             return {
