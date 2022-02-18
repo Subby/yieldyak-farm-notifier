@@ -7,6 +7,7 @@ const fetchFarms = async () => {
     const browser = await puppeteer.launch({args:['--no-sandbox']});
     const page = await browser.newPage();
     await page.goto(yieldYakStableFarmsUrl);
+    await page.setDefaultNavigationTimeout(45000); 
     await page.waitForSelector('.card');
 
     const farms = await page.evaluate(() => {
