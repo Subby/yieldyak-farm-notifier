@@ -5,7 +5,17 @@ import findBestFarm from './service/farmComparisonService.js'
 import sendFarmNotification from './service/discordNotifierService.js';
 import {logger} from './util/logger.js';
 
-const farmData = await fetchFarms();
+let farmData;
+
+try {
+    farmData = await fetchFarms();
+} catch (error) {
+    logger.error('Failed to fetch farm data: %o', error);
+    console.info('Retrying..');
+    farmData = await fetchFarms();
+}
+
+
 const farmContractAddresses = farmData.map(farm => farm.contractAddress.toLowerCase());
 const investedFarmContract = await fetchInvestedFarm(farmContractAddresses);
 const investedFarm = farmData.filter(farm => farm.contractAddress.toLowerCase() === investedFarmContract)[0];
@@ -15,4 +25,6 @@ const isInvestedFarmBestOption = bestFarm.contractAddress.toLowerCase() === inve
 if(!isInvestedFarmBestOption) {
     logger.info('Better farm found, sending notification...');
     await sendFarmNotification(investedFarm, bestFarm);
+} else {
+    logger.info('No better farm found');
 }
